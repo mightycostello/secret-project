@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Thank You Adidas team. Grateful to the opportunity to be considered for this role. Here's a sample of what I can do in a pinch. -Brandon">
+    <title>The YEEZY ADIDAS WEATHER APP</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" crossorigin></script>
+    <link rel="preload" href="./fonts/yeezy_tstar-regular-webfont.woff" as="font" type="font/woff">
+    <link href="./stylesheets/fonts.css" rel="stylesheet">
+    <link rel="stylesheet" href="./stylesheets/main.css">
+    <link rel="stylesheet" href="./stylesheets/chartist.min.css">
+    <!-- import our charting lirbary. Chartist! -->
+    <script src="./javascript/chartist.js"></script>
+    
+    <!-- Don't use this in production: -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/javascript">
+
+      function chanceOfRain(pressure, temperature, amount) {
+        var score = Math.log(amount + 1) * Math.log(pressure - 929) * Math.log(temperature - 9);
+        var mean = Math.min(Math.max(score, 0), 100)
+        var upper_bound = Math.min(1.5 * mean, 100);
+        var lower_bound = Math.max(0.5 * mean, 0);
+        return [lower_bound, mean, upper_bound];
+      }
+
+    </script>
+
+    <script type="text/babel">
+
+      const AppContext = React.createContext();
+      const labels = [1,2,3,4,5,6,7];
+
+      function TemperatureSlider() {
+        const { temp, setTemp, pressure } = React.useContext(AppContext);
+
+        const handleChange = (e) => {
+          setTemp(e.target.value);
+        }
+
+        return (
+          <>
+            <div className='card-section'>
+              <div className='card-center'>
+                <h1 className='fs-20'>Temperature</h1>
+                <div>{temp} (°C)</div>
+                <div class="slider">
+                  <input type="range" name="c" min='10' max='35' onChange={handleChange}/>
+                </div>
+              </div>
+            </div>
+          </>
+        )
+      }
+
+      function PressureSlider() {
+        const { pressure, setPressure } = React.useContext(AppContext);
+
+        const handleChange = (e) => {
+          setPressure(e.target.value);
+        }
+
+        return (
+          <>
+            <div className='card-section'>
+              <div className='card-center'>
+                <h1>Pressure</h1>
+                <div>{pressure} (hPa)</div>
+                <div class='slider'>
+                  <input type='range' name='hpa' min='970' max='1030' onChange={handleChange} />
+                </div>
+              </div>
+            </div>
+          </>
+        )
+      }
+
+      function ChanceOfRainSection() {
+        const { amount, temp, pressure } = React.useContext(AppContext);
+        const ref = React.useRef(null);
+
+        const createLineChart = (series) => {
+          const { current } = ref;
+
+          new Chartist.Line(current, {
+            labels,
+            series,
+          }, {
+            fullWidth: true,
+            high: 100,
+            width: 300,
+            height: 300,
+            axisY: {
+              offset: 45,
+              labelInterpolationFnc: (value) => `${value} %`,
+            }
+          });
+        }
+
+        React.useEffect(() => {
+          if (amount.length > 0) {
+            // create an array of amounts in order
+            const series = amount.map((v) => v.amount);
+            let array = [[],[],[]];
+            series.forEach((amount) => {
+              chanceOfRain(pressure, temp, amount).forEach(
+              (item, i) => array[i].push(item))
+            });
+
+            createLineChart(array);
+          }
+        });
+
+        return (
+          <>
+            <div className='card-section'>
+              <div ref={ref} className='ct-chart ct-square'></div>
+            </div>
+          </>
+         
+        )
+      }
+
+      function AmountOfRainSection() {
+        const { amount } = React.useContext(AppContext);
+        const ref = React.useRef();
+
+        const createBarChart = (series) => {
+          const { current } = ref;
+
+          new Chartist.Bar(current, {
+              labels,
+              series,
+            }, {
+              width:300,
+              height: 300,
+              axisY: {
+                offset: 70,
+                labelInterpolationFnc: (value) => `${value} l/m2`,
+              }
+            });
+          }
+
+        React.useEffect (() => {
+          if (amount.length > 0) {
+            const array = amount.map((v) => v.amount);
+            createBarChart([array]);
+          }
+        });
+  
+        return (
+          <>
+            <div className='card-section'>
+              <div id='bar-chart' ref={ref} className='ct-chart ct-square'></div>
+            </div>
+          </>
+        )
+      }
+
+
+      function App(props) {
+        const [amount, setAmount] = React.useState([]);
+        const [temp, setTemp] = React.useState('35');
+        const [pressure, setPressure] = React.useState('970');
+
+        React.useEffect(() => {
+          fetch('http://private-4945e-weather34.apiary-proxy.com/weather34/rain')
+            .then(res => res.json())
+            .then((result) => {
+              setAmount(result[0].days);
+            },
+              (error) => {
+                // LOG ERROR
+                console.log(error);
+              }
+            )
+        }, []);
+
+        
+
+        return (
+          <>
+            <header>
+              <img src='images/yeezy_shoe.gif' alt='yeezy shoe'/>
+            </header>
+            <div className='card-container'>
+              <aside>Yeezy Adidas</aside>
+              <main>
+                <AppContext.Provider value={{ amount, temp, setTemp, pressure, setPressure }}>
+                  <TemperatureSlider />
+                  <ChanceOfRainSection />
+                  <PressureSlider />
+                  <AmountOfRainSection />
+                </AppContext.Provider>
+              </main>
+              <aside>Weather App</aside>
+            </div>
+            <footer>©2020 Brandon x Adidas No Rights Reserved.</footer>
+          </>
+        );
+      }
+
+      ReactDOM.render(
+        <App />,
+        document.getElementById('root')
+      );
+   
+    </script>
+  </body>
+</html>

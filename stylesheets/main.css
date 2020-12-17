@@ -1,0 +1,91 @@
+html {
+ background-color: #ecede2;
+ color: #484848;
+ font-family: YeezyzTStar;
+ font-size: 18px;
+}
+
+html, body {
+ margin: 0;
+ padding: 0;
+}
+
+#root {
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ flex-direction: column;
+}
+
+.card-container {
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ flex-wrap: wrap;
+ margin-top: -40px;
+ margin-bottom: 40px;
+ padding: 0 35px;
+}
+
+main {
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ flex-wrap: wrap;
+ max-width: 860px;
+}
+
+header img {
+ max-width: 180px;
+ margin-top: -20px;
+}
+
+aside {
+ font-size: 2em;
+ color: #525252;
+ writing-mode: vertical-rl;
+ text-orientation: mixed;
+}
+
+@media only screen and (max-width: 1064px) {
+ aside {
+   display: none;
+ }
+}
+
+.card-section {
+ width: 300px;
+ height: 300px;
+ padding: 20px;
+}
+
+.card-center {
+ display: flex;
+ flex-direction: column;
+ justify-content: center;
+ align-items: center;
+ height: 100%;
+ margin-top: -20px;
+}
+
+h1 {
+ font-family: YeezyzTStar;
+ color: #484848;
+ font-weight: normal;
+ margin-block-end: .2em;
+ font-size: 1.6em;
+}
+
+.slider {
+ margin-top: 10px;
+ filter: grayscale(100%);
+}
+
+footer {
+  font-size: .8em;
+  padding-bottom: 40px;
+}
+
+.fs-20 {
+ font-size: 1.2em;
+}
